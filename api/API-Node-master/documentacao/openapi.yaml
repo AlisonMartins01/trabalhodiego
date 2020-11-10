@@ -1,0 +1,404 @@
+openapi: 3.0.0
+info:
+  title: Simple Inventory API
+  description: This is a simple API
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/AlisonMartins014/PGMAIS/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: developers
+  description: Operations available to regular developers
+- name: users
+  description: Operations of consume the aplication and storage customers
+paths:
+  /users/:idUser/clients:
+    get:
+      tags:
+      - users
+      summary: Get all customers
+      description: |
+        Get all customers registereds in the database with id
+      operationId: getCustomers
+      parameters:
+      - name: idUser
+        in: query
+        description: Pass an id to search all customers registereds in database
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerGet'
+        "403":
+          description: Invalid user id
+  /customers/upload:
+    post:
+      tags:
+      - users
+      summary: Add customers on database
+      description: Add customers to the dabatase with csv
+      operationId: addCustomers
+      requestBody:
+        description: Customers to add
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FileUpload'
+      responses:
+        "200":
+          description: Item created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerUpload'
+        "403":
+          description: Invalid file or UserID already exists
+  /customers/:idUser:
+    put:
+      tags:
+      - users
+      summary: Update customers in database
+      description: |
+        Update customers recordeds in the database with id
+      parameters:
+      - name: idUser
+        in: query
+        description: ID of the user
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestUpdateCustomer'
+      responses:
+        "200":
+          description: Uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "403":
+          description: Any data is invalid
+  /remove/:identifierUser/:identifierCustomer:
+    delete:
+      tags:
+      - users
+      summary: Remove customer
+      description: Delete a customer of the database
+      parameters:
+      - name: identifierUser
+        in: query
+        description: ID of the User
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: identifierCustomer
+        in: query
+        description: ID of the Customer
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: Customer Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "403":
+          description: Users doesn't exists or already removed
+  /removeAccount/:identifierUser:
+    delete:
+      tags:
+      - users
+      summary: remove user
+      description: Delete an user to the system and all your records
+      parameters:
+      - name: identifierUser
+        in: query
+        description: User ID
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: User Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+        "403":
+          description: User doesn't exist or already removed
+components:
+  schemas:
+    CustomerGet:
+      required:
+      - CEP
+      - CPF
+      - date_sent
+      - district
+      - id_customer
+      - id_user
+      - name
+      - state
+      - street
+      properties:
+        id_customer:
+          type: integer
+          format: int32
+          example: 69
+        name:
+          type: string
+          example: Alison Martins
+        CEP:
+          type: string
+          example: "83403190"
+        CPF:
+          type: string
+          example: "04611476970"
+        date_sent:
+          type: string
+          format: date_time
+          example: 2020-02-07 20:36:35
+        district:
+          type: string
+          example: Osasco
+        street:
+          type: string
+          example: Rua Nivaldo Socher
+        state:
+          type: string
+          example: Curitiba
+        id_user:
+          type: string
+          example: xpto123
+    CustomerUpload:
+      required:
+      - date_sent
+      - file_name
+      - id
+      - name
+      - status
+      properties:
+        id:
+          type: string
+          example: xpto123
+        name:
+          type: string
+          example: Alison Martins
+        date_sent:
+          type: string
+          example: 2020-02-07 20:53:45
+        file_name:
+          type: string
+          example: Donald-Trump_xpto123.csv
+        status:
+          type: string
+          example: upload_complete
+    FileUpload:
+      required:
+      - CEP
+      - CPF
+      - Name
+      properties:
+        Name:
+          type: string
+          example: Marcos
+        CEP:
+          type: string
+          example: "83403190"
+        CPF:
+          type: string
+          example: "11404670769"
+    DeletedCustomer:
+      required:
+      - CEP
+      - CPF
+      - date_sent
+      - district
+      - id_customer
+      - id_user
+      - name
+      - state
+      - street
+      properties:
+        id_customer:
+          type: integer
+          format: int32
+          example: 69
+        name:
+          type: string
+          example: Alison Martins
+        CEP:
+          type: string
+          example: "83403190"
+        CPF:
+          type: string
+          example: "04611476970"
+        date_sent:
+          type: string
+          format: date_time
+          example: 2020-02-07 20:36:35
+        district:
+          type: string
+          example: Osasco
+        street:
+          type: string
+          example: Rua Nivaldo Socher
+        state:
+          type: string
+          example: Curitiba
+        id_user:
+          type: string
+          example: xpto123
+    DeletedUser:
+      required:
+      - date_sent
+      - id_user
+      - name
+      - status
+      properties:
+        id_user:
+          type: string
+          example: xpto123
+        name:
+          type: string
+          example: Alison
+        date_sent:
+          type: string
+          example: 2020-02-10 03:46:40
+        status:
+          type: string
+          example: Deleted
+    ReturnCustomerUpdate:
+      required:
+      - CEP
+      - CPF
+      - date_sent
+      - district
+      - id_customer
+      - id_user
+      - name
+      - state
+      - street
+      properties:
+        id_customer:
+          type: integer
+          format: int32
+          example: 69
+        name:
+          type: string
+          example: Alison Martins
+        CEP:
+          type: string
+          example: "83403190"
+        CPF:
+          type: string
+          example: "04611476970"
+        date_sent:
+          type: string
+          format: date_time
+          example: 2020-02-07 20:36:35
+        district:
+          type: string
+          example: Osasco
+        street:
+          type: string
+          example: Rua Nivaldo Socher
+        state:
+          type: string
+          example: Curitiba
+        id_user:
+          type: string
+          example: xpto123
+    RequestUpdateCustomer:
+      required:
+      - CEP
+      - CPF
+      - name
+      properties:
+        name:
+          type: string
+          example: Alison
+        CEP:
+          type: string
+          example: "83403150"
+        CPF:
+          type: string
+          example: "11404670769"
+    inline_response_200:
+      type: object
+      properties:
+        id_customer:
+          type: integer
+          format: int32
+          example: 69
+        name:
+          type: string
+          example: Alison Martins
+        CEP:
+          type: string
+          example: "83403190"
+        CPF:
+          type: string
+          example: "04611476970"
+        date_sent:
+          type: string
+          format: date_time
+          example: 2020-02-07 20:36:35
+        district:
+          type: string
+          example: Osasco
+        street:
+          type: string
+          example: Rua Nivaldo Socher
+        state:
+          type: string
+          example: Curitiba
+        id_user:
+          type: string
+          example: xpto123
+    inline_response_200_1:
+      type: object
+      properties:
+        id_user:
+          type: string
+          example: xpto123
+        name:
+          type: string
+          example: Alison
+        date_sent:
+          type: string
+          example: 2020-02-10 03:46:40
+        status:
+          type: string
+          example: Deleted
